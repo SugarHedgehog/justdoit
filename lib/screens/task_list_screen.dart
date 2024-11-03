@@ -10,6 +10,10 @@ class TaskListScreen extends StatefulWidget {
   _TaskListScreenState createState() => _TaskListScreenState();
 }
 
+enum Filter { all, completed, pending }
+
+Filter _filter = Filter.all;
+
 class _TaskListScreenState extends State<TaskListScreen> {
   late Future<List<Task>> tasks;
 
@@ -19,24 +23,32 @@ class _TaskListScreenState extends State<TaskListScreen> {
     tasks = DatabaseHelper().getTasks(); // Получение задач из базы данных
   }
 
+  void _updateTask(Task task) async {
+    final db = DatabaseHelper();
+    await db
+        .updateTask(task); // Создайте метод updateTask в классе DatabaseHelper
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Список задач'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddTaskScreen()),
-              ).then((_) {
-                setState(() {
-                  tasks = DatabaseHelper().getTasks(); // Обновление списка задач
-                });
+          DropdownButton<Filter>(
+            value: _filter,
+            onChanged: (Filter? newValue) {
+              setState(() {
+                _filter = newValue!;
               });
             },
+            items: const [
+              DropdownMenuItem(value: Filter.all, child: Text('Все')),
+              DropdownMenuItem(
+                  value: Filter.completed, child: Text('Завершенные')),
+              DropdownMenuItem(
+                  value: Filter.pending, child: Text('Незавершенные')),
+            ],
           ),
         ],
       ),
@@ -44,32 +56,49 @@ class _TaskListScreenState extends State<TaskListScreen> {
         future: tasks,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Ошибка: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Нет задач'));
+            return Center(child: Text('Нет задач'));
           }
 
           final taskList = snapshot.data!;
+
+// Фильтрация задач в зависимости от выбранного фильтра
+          final filteredTasks = taskList.where((task) {
+            if (_filter == Filter.completed) return task.isCompleted;
+            if (_filter == Filter.pending) return !task.isCompleted;
+            return true; // Все задачи
+          }).toList();
+
           return ListView.builder(
-            itemCount: taskList.length,
+            itemCount: filteredTasks.length,
             itemBuilder: (context, index) {
-              final task = taskList[index];
+              final task = filteredTasks[index];
               return ListTile(
-                title: Text(task.title),
+                title: Text(
+                  task.title,
+                  style: TextStyle(
+                    decoration:
+                        task.isCompleted ? TextDecoration.lineThrough : null,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 trailing: Checkbox(
                   value: task.isCompleted,
                   onChanged: (bool? value) {
                     setState(() {
-                      // Обновление статуса задачи
                       task.isCompleted = value!;
-                      // Здесь можно добавить код для обновления задачи в базе данных
+                      _updateTask(task);
                     });
                   },
                 ),
-                onLongPress: () {
-                  // Здесь можно добавить код для удаления задачи
+                onLongPress: () async {
+                  await DatabaseHelper().deleteTask(task.id);
+                  setState(() {
+                    tasks = DatabaseHelper().getTasks();
+                  });
                 },
               );
             },
