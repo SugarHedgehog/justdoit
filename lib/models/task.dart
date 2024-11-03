@@ -1,7 +1,7 @@
 class Task {
   final String id;
   final String title;
-  final bool isCompleted;
+  late final bool isCompleted;
   final DateTime createdAt;
 
   Task({
