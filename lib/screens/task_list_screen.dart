@@ -25,9 +25,15 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   void _updateTask(Task task) async {
     final db = DatabaseHelper();
-    await db
-        .updateTask(task); // Создайте метод updateTask в классе DatabaseHelper
+    await db.updateTask(task);
   }
+
+Future<void> _deleteTask(String taskId) async {
+  await DatabaseHelper().deleteTask(taskId); // Remove the cast to String
+  setState(() {
+    tasks = DatabaseHelper().getTasks(); // Refresh the task list
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +71,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
           final taskList = snapshot.data!;
 
-// Фильтрация задач в зависимости от выбранного фильтра
+          // Фильтрация задач в зависимости от выбранного фильтра
           final filteredTasks = taskList.where((task) {
             if (_filter == Filter.completed) return task.isCompleted;
             if (_filter == Filter.pending) return !task.isCompleted;
@@ -77,9 +83,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
             itemBuilder: (context, index) {
               final task = filteredTasks[index];
               return Opacity(
-                opacity: task.isCompleted
-                    ? 0.5
-                    : 1.0, // Set opacity based on isCompleted
+                opacity: task.isCompleted ? 0.5 : 1.0,
                 child: ListTile(
                   title: Text(
                     task.title,
@@ -99,10 +103,36 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     },
                   ),
                   onLongPress: () async {
-                    await DatabaseHelper().deleteTask(task.id);
-                    setState(() {
-                      tasks = DatabaseHelper().getTasks();
-                    });
+                    bool? confirmDelete = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Подтверждение удаления'),
+                          content: const Text(
+                              'Вы уверены, что хотите удалить эту задачу?'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(
+                                    false); // Return false when "No" is pressed
+                              },
+                              child: const Text('Нет'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(
+                                    true); // Return true when "Yes" is pressed
+                              },
+                              child: const Text('Да'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    if (confirmDelete == true) {
+                      await _deleteTask(task.id);
+                    }
                   },
                 ),
               );
