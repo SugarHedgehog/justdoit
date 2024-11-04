@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:justdoit/screens/add_task_screen.dart';
 import '../db/database_helper.dart';
 import '../models/task.dart';
-import 'add_task_screen.dart';
 
 class TaskListScreen extends StatefulWidget {
   const TaskListScreen({super.key});
@@ -56,11 +56,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
         future: tasks,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Ошибка: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Нет задач'));
+            return const Center(child: Text('Нет задач'));
           }
 
           final taskList = snapshot.data!;
@@ -105,6 +105,21 @@ class _TaskListScreenState extends State<TaskListScreen> {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddTaskScreen()),
+              ).then((_) {
+                setState(() {
+                  tasks = DatabaseHelper().getTasks(); // Refresh the task list
+                });
+              });
+            },
+            tooltip: 'Добавить задачу',
+            child: const Icon(Icons.add),
+      ),
     );
   }
 }
+
