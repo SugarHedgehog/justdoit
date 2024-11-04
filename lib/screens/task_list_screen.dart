@@ -76,50 +76,54 @@ class _TaskListScreenState extends State<TaskListScreen> {
             itemCount: filteredTasks.length,
             itemBuilder: (context, index) {
               final task = filteredTasks[index];
-              return ListTile(
-                title: Text(
-                  task.title,
-                  style: TextStyle(
-                    decoration:
-                        task.isCompleted ? TextDecoration.lineThrough : null,
-                    fontWeight: FontWeight.bold,
+              return Opacity(
+                opacity: task.isCompleted
+                    ? 0.5
+                    : 1.0, // Set opacity based on isCompleted
+                child: ListTile(
+                  title: Text(
+                    task.title,
+                    style: TextStyle(
+                      decoration:
+                          task.isCompleted ? TextDecoration.lineThrough : null,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                trailing: Checkbox(
-                  value: task.isCompleted,
-                  onChanged: (bool? value) {
+                  trailing: Checkbox(
+                    value: task.isCompleted,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        task.isCompleted = value!;
+                        _updateTask(task);
+                      });
+                    },
+                  ),
+                  onLongPress: () async {
+                    await DatabaseHelper().deleteTask(task.id);
                     setState(() {
-                      task.isCompleted = value!;
-                      _updateTask(task);
+                      tasks = DatabaseHelper().getTasks();
                     });
                   },
                 ),
-                onLongPress: () async {
-                  await DatabaseHelper().deleteTask(task.id);
-                  setState(() {
-                    tasks = DatabaseHelper().getTasks();
-                  });
-                },
               );
             },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddTaskScreen()),
-              ).then((_) {
-                setState(() {
-                  tasks = DatabaseHelper().getTasks(); // Refresh the task list
-                });
-              });
-            },
-            tooltip: 'Добавить задачу',
-            child: const Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddTaskScreen()),
+          ).then((_) {
+            setState(() {
+              tasks = DatabaseHelper().getTasks(); // Refresh the task list
+            });
+          });
+        },
+        tooltip: 'Добавить задачу',
+        child: const Icon(Icons.add),
       ),
     );
   }
 }
-
