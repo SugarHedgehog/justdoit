@@ -7,14 +7,14 @@ class TaskListScreen extends StatefulWidget {
   const TaskListScreen({super.key});
 
   @override
-  _TaskListScreenState createState() => _TaskListScreenState();
+  TaskListScreenState createState() => TaskListScreenState();
 }
 
 enum Filter { all, completed, pending }
 
 Filter _filter = Filter.all;
 
-class _TaskListScreenState extends State<TaskListScreen> {
+class TaskListScreenState extends State<TaskListScreen> {
   late Future<List<Task>> tasks;
 
   @override

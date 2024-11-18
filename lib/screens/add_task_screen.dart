@@ -7,10 +7,10 @@ class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key});
 
   @override
-  _AddTaskScreenState createState() => _AddTaskScreenState();
+  AddTaskScreenState createState() => AddTaskScreenState();
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen> {
+class AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController _controller = TextEditingController();
 
   void _addTask() async {
@@ -22,7 +22,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         createdAt: DateTime.now(),
       );
       await DatabaseHelper().insertTask(task);
-      Navigator.pop(context); // Закрытие экрана добавления задачи
+      if (mounted) {
+        Navigator.pop(context); // Закрытие экрана добавления задачи
+      }
     }
   }
 
