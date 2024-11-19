@@ -3,15 +3,17 @@ import 'package:justdoit/screens/task_list_screen.dart';
 import 'package:justdoit/models/themes_selector.dart'; // Import the theme selector
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   AppTheme _appTheme = AppTheme.rei; // Default theme
 
   void _changeTheme(AppTheme newTheme) {
