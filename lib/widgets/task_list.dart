@@ -7,12 +7,12 @@ class TaskList extends StatelessWidget {
   final ValueChanged<String> onTaskDelete;
   final Future<void> Function(Task) onTaskLongPress;
   const TaskList({
-    Key? key,
+    super.key,
     required this.tasks,
     required this.onTaskToggle,
     required this.onTaskDelete,
     required this.onTaskLongPress,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

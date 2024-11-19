@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../db/database_helper.dart';
 import '../models/task.dart';
-import 'package:uuid/uuid.dart'; // Для генерации уникальных идентификаторов
+import 'package:uuid/uuid.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key});
@@ -13,17 +13,17 @@ class AddTaskScreen extends StatefulWidget {
 class AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController _controller = TextEditingController();
 
-  void _addTask() async {
+  Future<void> _addTask() async {
     final String title = _controller.text.trim();
     if (title.isNotEmpty) {
       final task = Task(
-        id: const Uuid().v4(), // Генерация уникального идентификатора
+        id: const Uuid().v4(),
         title: title,
         createdAt: DateTime.now(),
       );
       await DatabaseHelper().insertTask(task);
       if (mounted) {
-        Navigator.pop(context); // Закрытие экрана добавления задачи
+        Navigator.pop(context);
       }
     }
   }
@@ -37,6 +37,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
               controller: _controller,
