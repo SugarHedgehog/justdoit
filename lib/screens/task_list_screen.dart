@@ -73,13 +73,6 @@ class TaskListScreenState extends State<TaskListScreen> {
     }
   }
 
-  List<Task> _getFilteredTasks() {
-    return _tasks.where((task) {
-      if (_filter == Filter.completed) return task.isCompleted;
-      if (_filter == Filter.pending) return !task.isCompleted;
-      return true;
-    }).toList();
-  }
 
   @override
   Widget build(BuildContext context) {
