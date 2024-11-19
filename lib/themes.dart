@@ -1,52 +1,56 @@
 import 'package:flutter/material.dart';
-
-final ThemeData lightTheme = ThemeData(
-  brightness: Brightness.light,
-  primarySwatch: Colors.blue,
-  // Add more theme properties as needed
-);
-
-final ThemeData darkTheme = ThemeData(
-  brightness: Brightness.dark,
-  primarySwatch: Colors.blueGrey,
-  // Add more theme properties as needed
-);
-
 final ThemeData reiTheme = ThemeData(
-  primarySwatch: Colors.blue,
+  brightness: Brightness.light,
   primaryColor: Colors.blue,
+  hintColor: Colors.redAccent,
   scaffoldBackgroundColor: Colors.white,
-  colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue).copyWith(
-    secondary: Colors.lightBlueAccent,
-  ),
   textTheme: const TextTheme(
-    bodyLarge: TextStyle(color: Colors.blue), // Replaces bodyText1
-    bodyMedium: TextStyle(color: Colors.blueAccent), // Replaces bodyText2
+    bodyLarge: TextStyle(color: Colors.black),
+    bodyMedium: TextStyle(color: Colors.black54),
+    displayLarge: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
   ),
-  // Add other theme parameters if necessary
+  appBarTheme: const AppBarTheme(
+    color: Colors.blue,
+    iconTheme: IconThemeData(color: Colors.black),
+  ),
+  buttonTheme: const ButtonThemeData(
+    buttonColor: Colors.blue,
+    textTheme: ButtonTextTheme.primary,
+  ),
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
+    backgroundColor: Colors.redAccent,
+  ),
+  colorScheme: const ColorScheme.light(surface: Colors.white),
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    backgroundColor: Colors.blue,
+    selectedItemColor: Colors.white,
+    unselectedItemColor: Colors.white70,
+  ),
+  secondaryHeaderColor: Colors.blueAccent,
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.blue,
+      foregroundColor: Colors.black, // Text color
+    ),
+  ),
+  checkboxTheme: CheckboxThemeData(
+    fillColor: MaterialStateProperty.resolveWith((states) {
+      if (states.contains(MaterialState.selected)) {
+        return Colors.blue; // Color when checked
+      }
+      return null; // No color when unchecked
+    }),
+  ),
 );
-
-/* final ThemeData asukaTheme = ThemeData(
-  primarySwatch: Colors.red,
-  primaryColor: Colors.red,
-  scaffoldBackgroundColor: Colors.white,
-  colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.red).copyWith(
-    secondary: Colors.redAccent,
-  ),
-  textTheme: const TextTheme(
-    bodyLarge: TextStyle(color: Colors.red), // Replaces bodyText1
-    bodyMedium: TextStyle(color: Colors.redAccent), // Replaces bodyText2
-  ),
-  // Add other theme parameters if necessary
-); */
 
 final ThemeData asukaTheme = ThemeData(
+  brightness: Brightness.light,
   primaryColor: Colors.red,
   hintColor: Colors.orange,
   scaffoldBackgroundColor: Colors.white,
   appBarTheme: const AppBarTheme(
     color: Colors.red,
-    iconTheme: IconThemeData(color: Colors.white),
+    iconTheme: IconThemeData(color: Colors.black),
   ),
   textTheme: const TextTheme(
     displayLarge: TextStyle(color: Colors.red, fontSize: 24, fontWeight: FontWeight.bold),
@@ -59,9 +63,25 @@ final ThemeData asukaTheme = ThemeData(
   floatingActionButtonTheme: const FloatingActionButtonThemeData(
     backgroundColor: Colors.orange,
   ),
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    backgroundColor: Colors.red.shade700,
+    selectedItemColor: Colors.white,
+    unselectedItemColor: Colors.white70,
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.red,
+      foregroundColor: Colors.black, // Text color
+    ),
+  ),
+  checkboxTheme: CheckboxThemeData(
+    fillColor: MaterialStateProperty.resolveWith((states) =>
+        states.contains(MaterialState.selected) ? Colors.red : null),
+  ),
 );
 
 final ThemeData shinjiTheme = ThemeData(
+  brightness: Brightness.light,
   primarySwatch: Colors.blueGrey,
   primaryColor: Colors.blueGrey,
   scaffoldBackgroundColor: Colors.white,
@@ -69,8 +89,27 @@ final ThemeData shinjiTheme = ThemeData(
     secondary: Colors.grey,
   ),
   textTheme: const TextTheme(
-    bodyLarge: TextStyle(color: Colors.blueGrey), // Replaces bodyText1
-    bodyMedium: TextStyle(color: Colors.grey), // Replaces bodyText2
+    bodyLarge: TextStyle(color: Colors.blueGrey),
+    bodyMedium: TextStyle(color: Colors.grey),
   ),
-  // Add other theme parameters if necessary
+  appBarTheme: const AppBarTheme(
+    color: Colors.blueGrey,
+    iconTheme: IconThemeData(color: Colors.black),
+  ),
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    backgroundColor: Colors.blueGrey,
+    selectedItemColor: Colors.white,
+    unselectedItemColor: Colors.white70,
+  ),
+  dividerColor: Colors.grey.shade300,
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.blueGrey,
+      foregroundColor: Colors.white, // Text color
+    ),
+  ),
+  checkboxTheme: CheckboxThemeData(
+    fillColor: MaterialStateProperty.resolveWith((states) =>
+        states.contains(MaterialState.selected) ? Colors.blueGrey : null),
+  ),
 );
