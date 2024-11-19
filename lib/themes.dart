@@ -30,16 +30,12 @@ final ThemeData reiTheme = ThemeData(
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: Colors.blue,
-      foregroundColor: Colors.black, // Text color
+      foregroundColor: Colors.black,
     ),
   ),
   checkboxTheme: CheckboxThemeData(
-    fillColor: MaterialStateProperty.resolveWith((states) {
-      if (states.contains(MaterialState.selected)) {
-        return Colors.blue; // Color when checked
-      }
-      return null; // No color when unchecked
-    }),
+    fillColor: WidgetStateProperty.resolveWith((states) =>
+        states.contains(WidgetState.selected) ? Colors.blue : null),
   ),
 );
 
@@ -71,13 +67,16 @@ final ThemeData asukaTheme = ThemeData(
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: Colors.red,
-      foregroundColor: Colors.black, // Text color
+      foregroundColor: Colors.black,
     ),
   ),
   checkboxTheme: CheckboxThemeData(
-    fillColor: MaterialStateProperty.resolveWith((states) =>
-        states.contains(MaterialState.selected) ? Colors.red : null),
+    fillColor: WidgetStateProperty.resolveWith((states) =>
+        states.contains(WidgetState.selected) ? Colors.red : null),
   ),
+  secondaryHeaderColor: Colors.redAccent,
+  colorScheme: const ColorScheme.light(surface: Colors.white),
+  dividerColor: Colors.grey.shade300,
 );
 
 final ThemeData shinjiTheme = ThemeData(
@@ -105,11 +104,20 @@ final ThemeData shinjiTheme = ThemeData(
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: Colors.blueGrey,
-      foregroundColor: Colors.white, // Text color
+      foregroundColor: Colors.white,
     ),
   ),
   checkboxTheme: CheckboxThemeData(
-    fillColor: MaterialStateProperty.resolveWith((states) =>
-        states.contains(MaterialState.selected) ? Colors.blueGrey : null),
+    fillColor: WidgetStateProperty.resolveWith((states) =>
+        states.contains(WidgetState.selected) ? Colors.blueGrey : null),
   ),
+  hintColor: Colors.grey,
+  buttonTheme: const ButtonThemeData(
+    buttonColor: Colors.blueGrey,
+    textTheme: ButtonTextTheme.primary,
+  ),
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
+    backgroundColor: Colors.grey,
+  ),
+  secondaryHeaderColor: Colors.blueGrey.shade700,
 );
