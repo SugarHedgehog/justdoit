@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
-import 'screens/task_list_screen.dart'; // Импортируйте экран списка задач
+import 'package:justdoit/screens/task_list_screen.dart';
+import 'package:justdoit/models/themes_selector.dart'; // Import the theme selector
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  AppTheme _appTheme = AppTheme.rei; // Default theme
+
+  void _changeTheme(AppTheme newTheme) {
+    setState(() {
+      _appTheme = newTheme;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Сделай и Точка',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const TaskListScreen(), // Укажите, что домашний экран - это экран списка задач
+      theme: ThemeSelector.getThemeData(_appTheme),
+      home: TaskListScreen(onThemeChanged: _changeTheme),
     );
   }
 }

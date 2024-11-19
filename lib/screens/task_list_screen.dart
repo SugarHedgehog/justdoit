@@ -1,136 +1,158 @@
 import 'package:flutter/material.dart';
 import 'package:justdoit/screens/add_task_screen.dart';
-import 'package:justdoit/models/themes_selector.dart'; // Import the theme selector
+import 'package:justdoit/models/themes_selector.dart';
+import 'package:justdoit/widgets/task_list.dart';
 import '../db/database_helper.dart';
 import '../models/task.dart';
 
+enum Filter { all, completed, pending }
+
 class TaskListScreen extends StatefulWidget {
-  const TaskListScreen({super.key});
+  final Function(AppTheme) onThemeChanged;
+
+  const TaskListScreen({super.key, required this.onThemeChanged});
 
   @override
   TaskListScreenState createState() => TaskListScreenState();
 }
 
-enum Filter { all, completed, pending }
-
 class TaskListScreenState extends State<TaskListScreen> {
   Filter _filter = Filter.all;
-  AppTheme _appTheme = AppTheme.light; // Default theme
-  late Future<List<Task>> tasks;
-  late ThemeData _currentTheme; // Declare without initialization
+  AppTheme _appTheme = AppTheme.rei;
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+  List<Task> _tasks = []; // Local list of tasks
+  bool _isLoading = true; // Loading state
 
   @override
   void initState() {
     super.initState();
-    tasks = DatabaseHelper().getTasks(); // Получение задач из базы данных
-    _currentTheme = ThemeSelector.getThemeData(_appTheme); // Initialize here
+    _loadTasks(); // Load tasks initially
+  }
+
+  Future<void> _loadTasks() async {
+    try {
+      final tasks = await _dbHelper.getTasks();
+      setState(() {
+        _tasks = tasks;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      // Handle error, e.g., show a snackbar or dialog
+    }
   }
 
   void _updateTask(Task task) async {
-    final db = DatabaseHelper();
-    await db.updateTask(task);
-  }
-
-  Future<void> _deleteTask(String taskId) async {
-    await DatabaseHelper().deleteTask(taskId);
+    await _dbHelper.updateTask(task);
     setState(() {
-      tasks = DatabaseHelper().getTasks(); // Refresh the task list
+      // Update the local task list
+      final index = _tasks.indexWhere((t) => t.id == task.id);
+      if (index != -1) {
+        _tasks[index] = task;
+      }
     });
   }
 
-  void _showThemeDialog() async {
-    final selectedTheme = await ThemeSelector.showThemeDialog(context, _appTheme);
+  Future<void> _deleteTask(String taskId) async {
+    await _dbHelper.deleteTask(taskId);
+    setState(() {
+      _tasks.removeWhere((task) => task.id == taskId);
+    });
+  }
+
+  Future<void> _showThemeDialog() async {
+    final selectedTheme =
+        await ThemeSelector.showThemeDialog(context, _appTheme);
     if (selectedTheme != null && selectedTheme != _appTheme) {
       setState(() {
         _appTheme = selectedTheme;
-        _currentTheme = ThemeSelector.getThemeData(_appTheme);
       });
+      widget.onThemeChanged(selectedTheme);
     }
+  }
+
+  List<Task> _getFilteredTasks() {
+    return _tasks.where((task) {
+      if (_filter == Filter.completed) return task.isCompleted;
+      if (_filter == Filter.pending) return !task.isCompleted;
+      return true;
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: _currentTheme,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Список задач'),
-          actions: [
-            DropdownButton<Filter>(
-              value: _filter,
-              onChanged: (Filter? newValue) {
-                setState(() {
-                  _filter = newValue!;
-                });
-              },
-              items: const [
-                DropdownMenuItem(value: Filter.all, child: Text('Все')),
-                DropdownMenuItem(value: Filter.completed, child: Text('Завершенные')),
-                DropdownMenuItem(value: Filter.pending, child: Text('Незавершенные')),
-              ],
-            ),
-          ],
-        ),
-        body: FutureBuilder<List<Task>>(
-          future: tasks,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Ошибка: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text('Нет задач'));
-            }
-
-            final taskList = snapshot.data!;
-
-            // Фильтрация задач в зависимости от выбранного фильтра
-            final filteredTasks = taskList.where((task) {
-              if (_filter == Filter.completed) return task.isCompleted;
-              if (_filter == Filter.pending) return !task.isCompleted;
-              return true; // Все задачи
-            }).toList();
-
-            return ListView.builder(
-              itemCount: filteredTasks.length,
-              itemBuilder: (context, index) {
-                final task = filteredTasks[index];
-                return Opacity(
-                  opacity: task.isCompleted ? 0.5 : 1.0,
-                  child: ListTile(
-                    title: Text(
-                      task.title,
-                      style: TextStyle(
-                        decoration: task.isCompleted ? TextDecoration.lineThrough : null,
-                        fontWeight: FontWeight.bold,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Список задач'),
+        actions: [
+          DropdownButton<Filter>(
+            value: _filter,
+            onChanged: (Filter? newValue) {
+              setState(() {
+                _filter = newValue!;
+              });
+            },
+            items: const [
+              DropdownMenuItem(value: Filter.all, child: Text('Все')),
+              DropdownMenuItem(
+                  value: Filter.completed, child: Text('Завершенные')),
+              DropdownMenuItem(
+                  value: Filter.pending, child: Text('Незавершенные')),
+            ],
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _tasks.isEmpty
+              ? const Center(child: Text('Нет задач'))
+              : Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(
+                          ThemeSelector.getBackgroundImage(_appTheme)),
+                      fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(
+                        Colors.white.withOpacity(0.3),
+                        BlendMode.dstATop,
                       ),
                     ),
-                    trailing: Checkbox(
-                      value: task.isCompleted,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          task.isCompleted = value!;
-                          _updateTask(task);
-                        });
-                      },
-                    ),
-                    onLongPress: () async {
+                  ),
+                  child: TaskList(
+                    tasks: _tasks.where((task) {
+                      if (_filter == Filter.completed) return task.isCompleted;
+                      if (_filter == Filter.pending) return !task.isCompleted;
+                      return true;
+                    }).toList(),
+                    onTaskToggle: (task) {
+                      setState(() {
+                        task.isCompleted = !task.isCompleted;
+                      });
+                      _updateTask(task);
+                    },
+                    onTaskDelete: _deleteTask,
+                    onTaskLongPress: (task) async {
                       bool? confirmDelete = await showDialog<bool>(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text('Подтверждение удаления'),
-                            content: const Text('Вы уверены, что хотите удалить эту задачу?'),
+                            content: const Text(
+                                'Вы уверены, что хотите удалить эту задачу?'),
                             actions: <Widget>[
                               TextButton(
                                 onPressed: () {
-                                  Navigator.of(context).pop(false); // Return false when "No" is pressed
+                                  Navigator.of(context).pop(
+                                      false); // Возвращает false при нажатии "Нет"
                                 },
                                 child: const Text('Нет'),
                               ),
                               TextButton(
                                 onPressed: () {
-                                  Navigator.of(context).pop(true); // Return true when "Yes" is pressed
+                                  Navigator.of(context).pop(
+                                      true); // Возвращает true при нажатии "Да"
                                 },
                                 child: const Text('Да'),
                               ),
@@ -144,35 +166,31 @@ class TaskListScreenState extends State<TaskListScreen> {
                       }
                     },
                   ),
-                );
+                ),
+      bottomNavigationBar: BottomAppBar(
+        color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.brightness_6),
+              tooltip: 'Сменить тему',
+              onPressed: _showThemeDialog,
+            ),
+            IconButton(
+              icon: const Icon(Icons.add),
+              tooltip: 'Добавить задачу',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AddTaskScreen()),
+                ).then((_) {
+                  _loadTasks(); // Reload tasks after adding a new one
+                });
               },
-            );
-          },
-        ),
-        bottomNavigationBar: BottomAppBar(
-          color: Colors.white,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.brightness_6), // Icon for theme change
-                onPressed: _showThemeDialog,
-              ),
-              IconButton(
-                icon: const Icon(Icons.add), // Icon for adding a task
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AddTaskScreen()),
-                  ).then((_) {
-                    setState(() {
-                      tasks = DatabaseHelper().getTasks(); // Refresh the task list
-                    });
-                  });
-                },
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
