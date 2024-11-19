@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 final ThemeData reiTheme = ThemeData(
   brightness: Brightness.light,
   primaryColor: Colors.blue,
@@ -34,6 +35,10 @@ final ThemeData reiTheme = ThemeData(
     ),
   ),
   checkboxTheme: CheckboxThemeData(
+    fillColor: WidgetStateProperty.resolveWith((states) =>
+        states.contains(WidgetState.selected) ? Colors.blue : null),
+  ),
+  radioTheme: RadioThemeData(
     fillColor: WidgetStateProperty.resolveWith((states) =>
         states.contains(WidgetState.selected) ? Colors.blue : null),
   ),
@@ -74,6 +79,10 @@ final ThemeData asukaTheme = ThemeData(
     fillColor: WidgetStateProperty.resolveWith((states) =>
         states.contains(WidgetState.selected) ? Colors.red : null),
   ),
+  radioTheme: RadioThemeData(
+    fillColor: WidgetStateProperty.resolveWith((states) =>
+        states.contains(WidgetState.selected) ? Colors.red : null),
+  ),
   secondaryHeaderColor: Colors.redAccent,
   colorScheme: const ColorScheme.light(surface: Colors.white),
   dividerColor: Colors.grey.shade300,
@@ -108,6 +117,10 @@ final ThemeData shinjiTheme = ThemeData(
     ),
   ),
   checkboxTheme: CheckboxThemeData(
+    fillColor: WidgetStateProperty.resolveWith((states) =>
+        states.contains(WidgetState.selected) ? Colors.blueGrey : null),
+  ),
+  radioTheme: RadioThemeData(
     fillColor: WidgetStateProperty.resolveWith((states) =>
         states.contains(WidgetState.selected) ? Colors.blueGrey : null),
   ),
