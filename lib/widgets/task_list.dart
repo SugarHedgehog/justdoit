@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/task.dart';
 
 class TaskList extends StatelessWidget {
@@ -28,6 +29,9 @@ class TaskList extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
+          subtitle: task.deadline != null
+              ? Text('До: ${DateFormat.yMMMd().format(task.deadline!)}')
+              : null,
           trailing: Checkbox(
             value: task.isCompleted,
             onChanged: (bool? value) {

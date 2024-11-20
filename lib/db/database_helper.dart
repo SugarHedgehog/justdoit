@@ -17,25 +17,33 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), 'tasks.db');
     return await openDatabase(
-      path,
-      version: 1,
+      join(await getDatabasesPath(), 'tasks_database.db'),
+      version: 2, // Incremented version number
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT, isCompleted INTEGER, createdAt TEXT)',
+          'CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT, isCompleted INTEGER, createdAt TEXT, deadline TEXT)',
         );
+      },
+      onUpgrade: (db, oldVersion, newVersion) {
+        if (oldVersion < 2) {
+          db.execute('ALTER TABLE tasks ADD COLUMN deadline TEXT');
+        }
       },
     );
   }
 
-  Future<void> insertTask(Task task) async {
-    final db = await database;
-    await db.insert(
-      'tasks',
-      task.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+  Future<int> insertTask(Task task) async {
+    try {
+      final db = await database;
+      return await db.insert(
+        'tasks',
+        task.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      return -1; // or handle the error appropriately
+    }
   }
 
   Future<List<Task>> getTasks() async {
