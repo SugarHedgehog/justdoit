@@ -7,6 +7,7 @@ class TaskList extends StatelessWidget {
   final ValueChanged<Task> onTaskToggle;
   final ValueChanged<String> onTaskDelete;
   final Future<void> Function(Task) onTaskLongPress;
+
   const TaskList({
     super.key,
     required this.tasks,
@@ -21,16 +22,21 @@ class TaskList extends StatelessWidget {
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
+        final isOverdue = task.deadline != null &&
+            task.deadline!.isBefore(DateTime.now()) &&
+            !task.isCompleted;
+
         return ListTile(
           title: Text(
             task.title,
             style: TextStyle(
               decoration: task.isCompleted ? TextDecoration.lineThrough : null,
               fontWeight: FontWeight.bold,
+              color: task.isCompleted ? Colors.grey : (isOverdue ? Colors.red : null),
             ),
           ),
           subtitle: task.deadline != null
-              ? Text('До: ${DateFormat.yMMMd().format(task.deadline!)}')
+              ? Text('До: ${DateFormat.yMMMd().add_Hm().format(task.deadline!)}')
               : null,
           trailing: Checkbox(
             value: task.isCompleted,
