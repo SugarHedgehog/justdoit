@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:justdoit/screens/add_task_screen.dart';
 import 'package:justdoit/models/themes_selector.dart';
+import 'package:justdoit/screens/edit_task_screen.dart';
 import 'package:justdoit/widgets/task_list.dart';
-import '../db/database_helper.dart';
+import '../repositories/task_repository.dart';
 import '../models/task.dart';
 
 enum Filter { all, completed, pending }
@@ -19,19 +20,19 @@ class TaskListScreen extends StatefulWidget {
 class TaskListScreenState extends State<TaskListScreen> {
   Filter _filter = Filter.all;
   AppTheme _appTheme = AppTheme.rei;
-  final DatabaseHelper _dbHelper = DatabaseHelper();
-  List<Task> _tasks = []; // Local list of tasks
-  bool _isLoading = true; // Loading state
+  final TaskRepository _taskRepository = TaskRepository();
+  List<Task> _tasks = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadTasks(); // Load tasks initially
+    _loadTasks();
   }
 
   Future<void> _loadTasks() async {
     try {
-      final tasks = await _dbHelper.getTasks();
+      final tasks = await _taskRepository.getTasks();
       setState(() {
         _tasks = tasks;
         _isLoading = false;
@@ -45,22 +46,29 @@ class TaskListScreenState extends State<TaskListScreen> {
   }
 
   void _updateTask(Task task) async {
-    await _dbHelper.updateTask(task);
+    await _taskRepository.updateTask(task);
     setState(() {
-      // Update the local task list
       final index = _tasks.indexWhere((t) => t.id == task.id);
       if (index != -1) {
         _tasks[index] = task;
       }
     });
-  }
+}
 
   Future<void> _deleteTask(String taskId) async {
-    await _dbHelper.deleteTask(taskId);
+    await _taskRepository.deleteTask(taskId);
     setState(() {
       _tasks.removeWhere((task) => task.id == taskId);
     });
   }
+
+  Future<void> _editTask(Task task) async {
+  final updatedTask = await showEditTaskDialog(context, task);
+  if (updatedTask != null) {
+    _updateTask(updatedTask);
+    _loadTasks(); // Refresh the task list
+  }
+}
 
   Future<void> _showThemeDialog() async {
     final selectedTheme =
@@ -72,7 +80,6 @@ class TaskListScreenState extends State<TaskListScreen> {
       widget.onThemeChanged(selectedTheme);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -126,38 +133,7 @@ class TaskListScreenState extends State<TaskListScreen> {
                       _updateTask(task);
                     },
                     onTaskDelete: _deleteTask,
-                    onTaskLongPress: (task) async {
-                      bool? confirmDelete = await showDialog<bool>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('Подтверждение удаления'),
-                            content: const Text(
-                                'Вы уверены, что хотите удалить эту задачу?'),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(
-                                      false); // Возвращает false при нажатии "Нет"
-                                },
-                                child: const Text('Нет'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(
-                                      true); // Возвращает true при нажатии "Да"
-                                },
-                                child: const Text('Да'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-
-                      if (confirmDelete == true) {
-                        await _deleteTask(task.id);
-                      }
-                    },
+                    onTaskEdit: _editTask,
                   ),
                 ),
       bottomNavigationBar: BottomAppBar(
@@ -179,7 +155,7 @@ class TaskListScreenState extends State<TaskListScreen> {
                   MaterialPageRoute(
                       builder: (context) => const AddTaskScreen()),
                 ).then((_) {
-                  _loadTasks(); // Reload tasks after adding a new one
+                  _loadTasks();
                 });
               },
             ),
