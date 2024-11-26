@@ -4,6 +4,7 @@ import 'package:justdoit/models/themes_selector.dart';
 import 'package:justdoit/services/notification_service.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter binding is initialized
   initializeTimeZones();
   initializeNotifications();
   runApp(const MyApp());
