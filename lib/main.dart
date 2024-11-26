@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:justdoit/screens/task_list_screen.dart';
-import 'package:justdoit/models/themes_selector.dart'; // Import the theme selector
+import 'package:justdoit/models/themes_selector.dart';
+import 'package:justdoit/services/notification_service.dart';
 
 void main() {
+  initializeTimeZones();
+  initializeNotifications();
   runApp(const MyApp());
 }
 
