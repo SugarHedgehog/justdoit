@@ -1,114 +1,109 @@
 import 'package:flutter/material.dart';
-import '../db/database_helper.dart';
+import 'package:intl/intl.dart';
 import '../models/task.dart';
 import 'package:uuid/uuid.dart';
-import 'package:intl/intl.dart'; // Add this import for date formatting
 
-class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({super.key});
+Future<Task?> showAddTaskDialog(BuildContext context) {
+  final TextEditingController titleController = TextEditingController();
+  DateTime? selectedDeadline;
 
-  @override
-  AddTaskScreenState createState() => AddTaskScreenState();
-}
-
-class AddTaskScreenState extends State<AddTaskScreen> {
-  final TextEditingController _controller = TextEditingController();
-  DateTime? _selectedDate;
-  TimeOfDay? _selectedTime;
-
-  Future<void> _addTask() async {
-    final String title = _controller.text.trim();
-    if (title.isNotEmpty) {
-      final task = Task(
-        id: const Uuid().v4(),
-        title: title,
-        createdAt: DateTime.now(),
-        deadline: _selectedDate != null && _selectedTime != null
-            ? DateTime(
-                _selectedDate!.year,
-                _selectedDate!.month,
-                _selectedDate!.day,
-                _selectedTime!.hour,
-                _selectedTime!.minute,
-              )
-            : null,
-      );
-      await DatabaseHelper().insertTask(task);
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    }
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
-
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (picked != null && picked != _selectedTime) {
-      setState(() {
-        _selectedTime = picked;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+  return showDialog<Task>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
         title: const Text('Добавить задачу'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _controller,
-              decoration: const InputDecoration(labelText: 'Название задачи'),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () => _selectDate(context),
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(labelText: 'Название задачи'),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.access_time),
-                  onPressed: () => _selectTime(context),
+                const SizedBox(height: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(selectedDeadline != null
+                        ? 'Дедлайн: ${DateFormat.yMMMd().add_Hm().format(selectedDeadline!)}'
+                        : 'Дедлайн: Не установлен'),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.calendar_today),
+                          onPressed: () async {
+                            final DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime(2101),
+                            );
+                            if (pickedDate != null) {
+                              setState(() {
+                                selectedDeadline = DateTime(
+                                  pickedDate.year,
+                                  pickedDate.month,
+                                  pickedDate.day,
+                                  selectedDeadline?.hour ?? 0,
+                                  selectedDeadline?.minute ?? 0,
+                                );
+                              });
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.access_time),
+                          onPressed: () async {
+                            final TimeOfDay? pickedTime = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                            );
+                            if (pickedTime != null) {
+                              setState(() {
+                                selectedDeadline = DateTime(
+                                  selectedDeadline?.year ?? DateTime.now().year,
+                                  selectedDeadline?.month ?? DateTime.now().month,
+                                  selectedDeadline?.day ?? DateTime.now().day,
+                                  pickedTime.hour,
+                                  pickedTime.minute,
+                                );
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
-            ),
-            const SizedBox(height: 10),
-            if (_selectedDate != null)
-              Text(
-                  'Выбранная дата: ${DateFormat.yMd().format(_selectedDate!)}'),
-            if (_selectedTime != null)
-              Text('Выбранное время: ${_selectedTime!.format(context)}'),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _addTask,
-              child: const Text('Добавить'),
-            ),
-          ],
+            );
+          },
         ),
-      ),
-    );
-  }
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog without saving
+            },
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (titleController.text.isNotEmpty) {
+                final newTask = Task(
+                  id: const Uuid().v4(), // Generate a unique ID for the new task
+                  title: titleController.text,
+                  deadline: selectedDeadline,
+                  isCompleted: false,
+                  createdAt: DateTime.now(),
+                );
+                Navigator.of(context).pop(newTask); // Return the new task
+              }
+            },
+            child: const Text('Сохранить'),
+          ),
+        ],
+      );
+    },
+  );
 }

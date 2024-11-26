@@ -16,4 +16,8 @@ class TaskRepository {
   Future<void> deleteTask(String taskId) async {
     await _dbHelper.deleteTask(taskId);
   }
+
+  Future<void> addTask(Task newTask) async {
+      await _dbHelper.insertTask(newTask);
+  }
 }
