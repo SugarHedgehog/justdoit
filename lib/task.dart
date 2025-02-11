@@ -2,7 +2,12 @@ class Task {
   String textOfTask;
   String descriptionOfTask;
   DateTime deadline;
-  bool check = false;
-  
-  Task(this.textOfTask, this.descriptionOfTask, this.deadline);
+  bool check;
+
+  Task({
+    required this.textOfTask,
+    required this.descriptionOfTask,
+    required this.deadline,
+    this.check = false, 
+  });
 }
