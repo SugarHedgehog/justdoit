@@ -42,49 +42,49 @@ class ListOfTask extends StatefulWidget {
   final String title;
 
   @override
-  State<ListOfTask> createState() => _ListOftaskListUnchecktate();
+  State<ListOfTask> createState() => _ListOfTask();
 }
 
-class _ListOftaskListUnchecktate extends State<ListOfTask> {
+class _ListOfTask extends State<ListOfTask> {
   List<Task> taskListUncheck = [
     Task(
-        textOfTask: 'Sleep',
+        textOfTask: '1',
         descriptionOfTask: 'Long',
         deadline: DateTime(2023, 10, 15)),
     Task(
-        textOfTask: 'Sleep',
+        textOfTask: '2',
         descriptionOfTask: 'Long',
         deadline: DateTime(2023, 10, 15)),
     Task(
-        textOfTask: 'Sleep',
+        textOfTask: '3',
         descriptionOfTask: 'Long',
         deadline: DateTime(2023, 10, 15)),
     Task(
-        textOfTask: 'Sleep',
+        textOfTask: '4',
         descriptionOfTask: 'Long',
         deadline: DateTime(2023, 10, 15)),
     Task(
-        textOfTask: 'Sleep',
+        textOfTask: '5',
         descriptionOfTask: 'Long',
         deadline: DateTime(2023, 10, 15)),
     Task(
-        textOfTask: 'Sleep',
+        textOfTask: '6',
         descriptionOfTask: 'Long',
         deadline: DateTime(2023, 10, 15)),
     Task(
-        textOfTask: 'Sleep',
+        textOfTask: '7',
         descriptionOfTask: 'Long',
         deadline: DateTime(2023, 10, 15)),
     Task(
-        textOfTask: 'Sleep',
+        textOfTask: '8',
         descriptionOfTask: 'Long',
         deadline: DateTime(2023, 10, 15)),
     Task(
-        textOfTask: 'Sleep',
+        textOfTask: '9',
         descriptionOfTask: 'Long',
         deadline: DateTime(2023, 10, 15)),
     Task(
-        textOfTask: 'Sleep',
+        textOfTask: '10',
         descriptionOfTask: 'Long',
         deadline: DateTime(2023, 10, 15)),
   ];
@@ -99,32 +99,45 @@ class _ListOftaskListUnchecktate extends State<ListOfTask> {
         title: Text(widget.title),
         centerTitle: true,
       ),
-      body:
-          listViewCustom(taskListUncheck),
+      body: Column(
+        children: [
+          const Text('Ещё дела не поделаны'),
+          Expanded(child: listViewCustom(taskListUncheck)),
+          const Text('Уже дела поделаны'),
+          Expanded(child: listViewCustom(taskListCheck))
+        ],
+      ),
     );
   }
 
-  ListView listViewCustom(List <Task> taskList) {
+  ListView listViewCustom(List<Task> taskList) {
     return ListView.builder(
-          itemCount: taskListUncheck.length,
-          itemBuilder: (context, index) {
-            final task = taskListUncheck[index];
-            return ListTile(
-              title: Text(task.textOfTask),
-              subtitle: Text('${task.descriptionOfTask} Сделать до ${task.deadline.toLocal().toString().split(' ')[0]}'),
-              //splashColor: Colors.amber,
-              trailing: Checkbox(
-                value: task.check,
-                onChanged: (bool? value) {
-                  setState(() {
-                    task.check = task.check == false? true: false;
-                    taskListCheck.add(task);
-                    taskListUncheck.removeAt(index);
-                  });
-                },
-              ),
-            );
-          },
+      itemCount: taskList.length,
+      itemBuilder: (context, index) {
+        final task = taskList[index];
+        return ListTile(
+          title: Text(task.textOfTask),
+          subtitle: Text(
+              '${task.descriptionOfTask} Сделать до ${task.deadline.toLocal().toString().split(' ')[0]}'),
+          //splashColor: Colors.amber,
+          trailing: Checkbox(
+            value: task.check,
+            onChanged: (bool? value) {
+              setState(() {
+                if (task.check == false) {
+                  taskListCheck.add(task);
+                  taskListUncheck.removeAt(index);
+                  task.check = true;
+                } else {
+                  taskListUncheck.insert(0, task);
+                  taskListCheck.removeAt(index);
+                  task.check = false;
+                }
+              });
+            },
+          ),
         );
+      },
+    );
   }
 }
