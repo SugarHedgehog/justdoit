@@ -11,22 +11,7 @@ class _AddTaskState extends State<AddTask> {
   String text = '';
   String description = '';
   DateTime selectedDate =
-      DateTime.now(); // Переменная для хранения выбранной даты
-
-  // Функция для отображения диалогового окна выбора даты
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked; // Обновляем состояние с новой датой
-      });
-    }
-  }
+  DateTime.now(); // Переменная для хранения выбранной даты
 
   @override
   Widget build(BuildContext context) {
@@ -34,59 +19,52 @@ class _AddTaskState extends State<AddTask> {
       appBar: AppBar(
         title: const Text('Добавить дело для делания'),
       ),
-      body: Column(
-        children: [
-          Row(
-            children: [
-              const Text('Задача:'),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.5,
-                child: TextFormField(
-                  onSaved: (String? value) {
-                    text = value!;
-                  },
+      body: Container(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          spacing: 20,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: TextField(
+                onChanged: (String? value) => {text = value!},
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Задача',
                 ),
               ),
-            ],
-          ),
-          Row(
-            children: [
-              const Text('Описание:'),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.5,
-                child: TextFormField(
-                  onSaved: (String? value) {
-                    description = value!;
-                  },
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: TextField(
+                onChanged: (String? value) => {description = value!},
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Описание',
                 ),
               ),
-            ],
-          ),
-          Row(
-            children: [
-              const Text('Дата:'),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.5,
-                child: GestureDetector(
-                  onTap: () => _selectDate(
-                      context), // Вызываем функцию выбора даты при нажатии
-                  child: AbsorbPointer(
-                    // Блокируем ввод текста
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        hintText: "${selectedDate.toLocal()}"
-                            .split(' ')[0], // Отображаем выбранную дату
-                      ),
-                      onSaved: (String? value) {
-                        // Сохраняем дату в строковом формате, если это необходимо
-                      },
-                    ),
-                  ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: const TextField(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Дата',
                 ),
               ),
-            ],
-          ),
-        ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                    onPressed: () => {}, child: const Text('Сохранить')),
+                const SizedBox(width: 20),
+                ElevatedButton(
+                    onPressed: () => {}, child: const Text('Удалить'))
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
