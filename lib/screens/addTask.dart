@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:justdoit/resourse/data.dart';
+import 'package:justdoit/task.dart';
 
 class AddTask extends StatefulWidget {
   const AddTask({super.key});
@@ -10,8 +12,26 @@ class AddTask extends StatefulWidget {
 class _AddTaskState extends State<AddTask> {
   String text = '';
   String description = '';
-  DateTime selectedDate =
-  DateTime.now(); // Переменная для хранения выбранной даты
+  DateTime selectedDate = DateTime(0);
+
+  bool saveTask(String text, String description, DateTime selectedDate) {
+    if (text == '') {
+      print('Введите текст');
+    } else {
+      Task newTask = Task(
+          textOfTask: text,
+          descriptionOfTask: description,
+          deadline: selectedDate);
+      AddTask(newTask);
+      return true;
+    }
+    return false;
+  }
+
+  void AddTask(Task newTask){
+    taskListUncheck.insert(0, newTask);
+      print('задача добавлена');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +77,14 @@ class _AddTaskState extends State<AddTask> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                    onPressed: () => {}, child: const Text('Сохранить')),
+                    onPressed: () =>
+                        {if(saveTask(text, description, selectedDate)){
+                          Navigator.pop(context,{})},
+                        },
+                    child: const Text('Сохранить')),
                 const SizedBox(width: 20),
                 ElevatedButton(
-                    onPressed: () => {}, child: const Text('Удалить'))
+                    onPressed: () => {Navigator.pop(context,{})}, child: const Text('Удалить'))
               ],
             ),
           ],

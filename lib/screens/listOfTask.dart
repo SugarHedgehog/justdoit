@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:justdoit/main.dart';
-import 'package:justdoit/screens/addTask.dart';
 import 'package:justdoit/task.dart';
 import 'package:justdoit/resourse/data.dart';
 
@@ -13,7 +11,6 @@ class ListOfTask extends StatefulWidget {
 }
 
 class _ListOfTask extends State<ListOfTask> {
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,11 +28,8 @@ class _ListOfTask extends State<ListOfTask> {
         ],
       ),
       floatingActionButton: IconButton.filled(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddTask()),
-          );
+        onPressed: () async {
+          Navigator.pushNamed(context, '/addtask');
         },
         icon: const Icon(Icons.add),
       ),
@@ -59,7 +53,6 @@ class _ListOfTask extends State<ListOfTask> {
               ),
             ],
           ),
-          
           child: ClipRRect(
             borderRadius:
                 BorderRadius.circular(15.0), // Обеспечивает скругление краев
@@ -70,7 +63,7 @@ class _ListOfTask extends State<ListOfTask> {
                 return ListTile(
                   title: Text(task.textOfTask),
                   subtitle: Text(
-                      '${task.descriptionOfTask} Сделать до ${task.deadline.toLocal().toString().split(' ').join(', ')}'),
+                      '${task.descriptionOfTask ?? ''} ${task.deadline?.year == 0 ? '' : 'Сделать до ${task.deadline?.toLocal().toString().split(' ').join(', ')}'}'),
                   trailing: Checkbox(
                     value: task.check,
                     onChanged: (bool? value) {
