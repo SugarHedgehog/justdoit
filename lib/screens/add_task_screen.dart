@@ -36,8 +36,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Добавить дело для делания'),
+      title: const Text('Добавить дело для делания'),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          Navigator.pop(context, false); // Возврат на предыдущий экран
+        },
       ),
+    ),
       body: Container(
         padding: const EdgeInsets.all(10),
         child: Column(
