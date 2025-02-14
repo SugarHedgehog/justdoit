@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:justdoit/task.dart';
 import 'package:justdoit/resourse/data.dart';
 
-class ListOfTask extends StatefulWidget {
-  const ListOfTask({super.key, required this.title});
+class ListOfTaskScreen extends StatefulWidget {
+  const ListOfTaskScreen({super.key, required this.title});
   final String title;
-
   @override
-  State<ListOfTask> createState() => _ListOfTask();
+  State<ListOfTaskScreen> createState() => _ListOfTaskScreen();
 }
 
-class _ListOfTask extends State<ListOfTask> {
+class _ListOfTaskScreen extends State<ListOfTaskScreen> {
+  String formatDeadline(DateTime deadline) {
+    initializeDateFormatting('ru_RU', null);
+    return DateFormat('d MMMM yyyy', 'ru_RU').format(deadline);
+  }
+
+  bool _taskIsSave = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,12 +37,22 @@ class _ListOfTask extends State<ListOfTask> {
       ),
       floatingActionButton: IconButton.filled(
         onPressed: () async {
-          Navigator.pushNamed(context, '/addtask');
+          final taskIsSave = await Navigator.pushNamed(context, '/addtask');
+            setState(() {
+                  _taskIsSave = taskIsSave as bool;
+            });
+            if(_taskIsSave==true){
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Задача добавлена')),
+              );
+              _taskIsSave = false;
+            }
         },
         icon: const Icon(Icons.add),
       ),
     );
   }
+
   Widget listViewCustom(List<Task> taskList, context) {
     return Center(
       child: Padding(
@@ -60,10 +78,11 @@ class _ListOfTask extends State<ListOfTask> {
               itemCount: taskList.length,
               itemBuilder: (context, index) {
                 final task = taskList[index];
+                String deadline = formatDeadline(task.deadline!);
                 return ListTile(
                   title: Text(task.textOfTask),
                   subtitle: Text(
-                      '${task.descriptionOfTask ?? ''} ${task.deadline?.year == 0 ? '' : 'Сделать до ${task.deadline?.toLocal().toString().split(' ').join(', ')}'}'),
+                      '${task.descriptionOfTask ?? ''} ${task.deadline!.year == 0 ? '' : 'Сделать до $deadline'}'),
                   trailing: Checkbox(
                     value: task.check,
                     onChanged: (bool? value) {
