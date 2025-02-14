@@ -2,35 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:justdoit/resourse/data.dart';
 import 'package:justdoit/task.dart';
 
-class AddTask extends StatefulWidget {
-  const AddTask({super.key});
+class AddTaskScreen extends StatefulWidget {
+  const AddTaskScreen({super.key});
 
   @override
-  State<AddTask> createState() => _AddTaskState();
+  State<AddTaskScreen> createState() => _AddTaskScreenState();
 }
 
-class _AddTaskState extends State<AddTask> {
+class _AddTaskScreenState extends State<AddTaskScreen> {
   String text = '';
   String description = '';
   DateTime selectedDate = DateTime(0);
+  bool taskIsSave = false;
 
   bool saveTask(String text, String description, DateTime selectedDate) {
     if (text == '') {
-      print('Введите текст');
+      return false;
     } else {
       Task newTask = Task(
           textOfTask: text,
           descriptionOfTask: description,
           deadline: selectedDate);
-      AddTask(newTask);
+      addTask(newTask);
       return true;
     }
-    return false;
   }
 
-  void AddTask(Task newTask){
+  Future<void> addTask(Task newTask) async {
     taskListUncheck.insert(0, newTask);
-      print('задача добавлена');
   }
 
   @override
@@ -77,14 +76,24 @@ class _AddTaskState extends State<AddTask> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                    onPressed: () =>
-                        {if(saveTask(text, description, selectedDate)){
-                          Navigator.pop(context,{})},
+                    onPressed: () => {
+                          taskIsSave =
+                              saveTask(text, description, selectedDate),
+                          if (taskIsSave)
+                            {Navigator.pop(context, taskIsSave)}
+                          else
+                            {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Введите текст задачи')),
+                              )
+                            },
                         },
                     child: const Text('Сохранить')),
                 const SizedBox(width: 20),
                 ElevatedButton(
-                    onPressed: () => {Navigator.pop(context,{})}, child: const Text('Удалить'))
+                    onPressed: () => {Navigator.pop(context, false)},
+                    child: const Text('Удалить'))
               ],
             ),
           ],
