@@ -16,6 +16,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   bool taskIsSave = false;
 
   Future<DateTime?> pickDate() => showDatePicker(
+      locale: const Locale("ru", "RU"),
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(DateTime.now().year - 100),
@@ -83,43 +84,38 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
               ),
             ),
-            /* SizedBox(
-              width: MediaQuery.of(context).size.width * 0.9,
-              child: const TextField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Дата',
-                ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                spacing: 5.0,
+                children: [
+                  IconButton(
+                      onPressed: () async {
+                          final newDate = await pickDate();
+                          if (newDate == null) return; 
+              
+                          final newDateTime = DateTime(newDate.year, newDate.month, newDate.day, selectedDate.hour, selectedDate.minute);
+                          setState(
+                            () => selectedDate = newDateTime,
+                          );
+                        },
+                      tooltip: "Добавить дату дедлайна",
+                      icon: const Icon(Icons.calendar_month)),
+                  IconButton(
+                      onPressed: () async {
+                          final newTime = await pickTime();
+                          if (newTime == null) return; 
+              
+                          final newDateTime = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, newTime.hour, newTime.minute);
+                          setState(
+                            () => selectedDate = newDateTime,
+                          );
+                        }, 
+                        tooltip: "Добавить время дедлайна",
+                        icon: const Icon(Icons.schedule)),
+                ],
               ),
-            ), */
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 5.0,
-              children: [
-                IconButton(
-                    onPressed: () async {
-                        final newDate = await pickDate();
-                        if (newDate == null) return; // person pressed 'CANCEL'
-
-                        // Update datetime object that's shown with new date
-                        final newDateTime = DateTime(newDate.year, newDate.month, newDate.day, selectedDate.hour, selectedDate.minute);
-                        setState(
-                          () => selectedDate = newDateTime,
-                        );
-                      },
-                    icon: const Icon(Icons.calendar_month)),
-                IconButton(
-                    onPressed: () async {
-                        final newTime = await pickTime();
-                        if (newTime == null) return; // person pressed 'CANCEL'
-
-                        // Update datetime object that's shown with new time
-                        final newDateTime = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, newTime.hour, newTime.minute);
-                        setState(
-                          () => selectedDate = newDateTime,
-                        );
-                      }, icon: const Icon(Icons.schedule)),
-              ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

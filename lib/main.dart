@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:justdoit/screens/add_task_screen.dart';
 import 'package:justdoit/screens/list_of_task.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() => runApp(MaterialApp(
+    localizationsDelegates: const [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: const [
+      Locale('ru'),
+    ],
     initialRoute: '/home',
     routes: {
       '/home': (context) => const ListOfTaskScreen(title: 'Дела для делания'),
