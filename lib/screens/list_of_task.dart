@@ -14,7 +14,7 @@ class ListOfTaskScreen extends StatefulWidget {
 class _ListOfTaskScreen extends State<ListOfTaskScreen> {
   String formatDeadline(DateTime deadline) {
     initializeDateFormatting('ru_RU', null);
-    return DateFormat('d MMMM yyyy hh:mm', 'ru_RU').format(deadline);
+    return DateFormat('d MMMM yyyy HH:mm', 'ru_RU').format(deadline);
   }
 
   bool _taskIsSave = false;

@@ -22,14 +22,32 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(DateTime.now().year - 100),
-      lastDate: DateTime(DateTime.now().year + 100)
-  );
+      lastDate: DateTime(DateTime.now().year + 100));
 
   /// Opens time picker and returns possible `TimeOfDay` object.
   Future<TimeOfDay?> pickTime() => showTimePicker(
       context: context,
       initialTime:
           TimeOfDay(hour: selectedDate.hour, minute: selectedDate.minute));
+  
+  Future pickDateTime() async {
+    DateTime? date = await pickDate();
+    if (date == null){return;}else{setState(() {
+      dateIsSet = true;
+    });} // pressed 'CANCEL' or 'OK'
+
+    TimeOfDay? time = await pickTime();
+    if (time == null){return;}else{setState(() {
+      timeIsSet = true;
+    });} // pressed 'CANCEL' or 'OK'
+
+    // Update datetime object that's shown with new date
+    final newDateTime =
+        DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    setState(
+      () => selectedDate = newDateTime,
+    );
+  }
 
   bool saveTask(String text, String description, DateTime selectedDate) {
     if (text == '') {
@@ -95,29 +113,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 spacing: 5.0,
                 children: [
                   IconButton(
-                      onPressed: () async {
-                        final newDate = await pickDate();
-                        if (newDate == null) {
-                          return;
-                        } else {
-                          setState(() {
-                            dateIsSet = true;
-                          });
-                        }},
-                      tooltip: "Добавить дату дедлайна",
+                      onPressed: pickDateTime,
+                      tooltip: "Добавить время дедлайна",
                       icon: const Icon(Icons.calendar_month)),
-                  IconButton(
-                      onPressed: () async {
-                          final newTime = await pickTime();
-                          if (newTime == null) return; 
-              
-                          final newDateTime = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, newTime.hour, newTime.minute);
-                          setState(
-                            () => selectedDate = newDateTime,
-                          );
-                        }, 
-                        tooltip: "Добавить время дедлайна",
-                        icon: const Icon(Icons.schedule)),
                 ],
               ),
             ),
