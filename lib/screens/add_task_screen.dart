@@ -29,24 +29,64 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       context: context,
       initialTime:
           TimeOfDay(hour: selectedDate.hour, minute: selectedDate.minute));
-  
+
   Future pickDateTime() async {
     DateTime? date = await pickDate();
-    if (date == null){return;}else{setState(() {
+    if (date == null) return;
+
+    setState(() {
       dateIsSet = true;
-    });} // pressed 'CANCEL' or 'OK'
+      selectedDate = date;
+    });
 
-    TimeOfDay? time = await pickTime();
-    if (time == null){return;}else{setState(() {
-      timeIsSet = true;
-    });} // pressed 'CANCEL' or 'OK'
-
-    // Update datetime object that's shown with new date
-    final newDateTime =
-        DateTime(date.year, date.month, date.day, time.hour, time.minute);
-    setState(
-      () => selectedDate = newDateTime,
+    final shouldPickTime = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Выбрать время?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Продолжить без времени'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Добавить время'),
+          ),
+        ],
+      ),
     );
+
+    if (shouldPickTime == true) {
+      TimeOfDay? time = await pickTime();
+      if (time != null) {
+        setState(() {
+          timeIsSet = true;
+          selectedDate = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute,
+          );
+        });
+      }
+    }
+  }
+
+  DateTime setdeadline() {
+    if (dateIsSet && timeIsSet) {
+      return DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
+          selectedDate.hour, selectedDate.minute);
+    }
+    if (dateIsSet && !timeIsSet) {
+      return DateTime(
+          selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 10);
+    }
+    if (!dateIsSet && !timeIsSet) {
+      return DateTime(0);
+    }
+
+    return DateTime(0);
   }
 
   bool saveTask(String text, String description, DateTime selectedDate) {
@@ -56,10 +96,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       Task newTask = Task(
           textOfTask: text,
           descriptionOfTask: description,
-          deadline: dateIsSet
-              ? DateTime(selectedDate.year, selectedDate.month,
-                  selectedDate.day, selectedDate.hour, selectedDate.minute)
-              : DateTime(0));
+          deadline: setdeadline());
       addTask(newTask);
       return true;
     }
@@ -77,7 +114,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context, false); // Возврат на предыдущий экран
+            Navigator.pop(context, false);
           },
         ),
       ),
@@ -114,8 +151,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 children: [
                   IconButton(
                       onPressed: pickDateTime,
-                      tooltip: "Добавить время дедлайна",
+                      tooltip: "Добавить дату и время",
                       icon: const Icon(Icons.calendar_month)),
+                  if (dateIsSet)
+                    Text(
+                      'Дата: ${selectedDate.day}.${selectedDate.month}.${selectedDate.year}'
+                      '${timeIsSet ? ' Время: ${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}' : ''}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
                 ],
               ),
             ),

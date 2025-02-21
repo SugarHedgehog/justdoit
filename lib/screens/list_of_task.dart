@@ -12,9 +12,14 @@ class ListOfTaskScreen extends StatefulWidget {
 }
 
 class _ListOfTaskScreen extends State<ListOfTaskScreen> {
-  String formatDeadline(DateTime deadline) {
+  String formatDeadlineDate(DateTime deadline) {
     initializeDateFormatting('ru_RU', null);
-    return DateFormat('d MMMM yyyy HH:mm', 'ru_RU').format(deadline);
+    return DateFormat('d MMMM yyyy', 'ru_RU').format(deadline);
+  }
+
+  String formatDeadlineTime(DateTime deadline) {
+    initializeDateFormatting('ru_RU', null);
+    return DateFormat('H:mm', 'ru_RU').format(deadline);
   }
 
   bool _taskIsSave = false;
@@ -38,15 +43,15 @@ class _ListOfTaskScreen extends State<ListOfTaskScreen> {
       floatingActionButton: IconButton.filled(
         onPressed: () async {
           final taskIsSave = await Navigator.pushNamed(context, '/addtask');
-            setState(() {
-                  _taskIsSave = taskIsSave as bool;
-            });
-            if(_taskIsSave==true){
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Задача добавлена')),
-              );
-              _taskIsSave = false;
-            }
+          setState(() {
+            _taskIsSave = taskIsSave as bool;
+          });
+          if (_taskIsSave == true) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Задача добавлена')),
+            );
+            _taskIsSave = false;
+          }
         },
         icon: const Icon(Icons.add),
       ),
@@ -78,11 +83,12 @@ class _ListOfTaskScreen extends State<ListOfTaskScreen> {
               itemCount: taskList.length,
               itemBuilder: (context, index) {
                 final task = taskList[index];
-                String deadline = formatDeadline(task.deadline!);
+                String deadlineDate = formatDeadlineDate(task.deadline!);
+                String deadlineTime = formatDeadlineTime(task.deadline!);
                 return ListTile(
                   title: Text(task.textOfTask),
                   subtitle: Text(
-                      '${task.descriptionOfTask ?? ''} ${task.deadline!.year == 0 ? '' : 'Сделать до $deadline'}'),
+                      '${task.descriptionOfTask ?? ''} ${task.deadline!.year == 0 ? '' : 'Сделать до $deadlineDate${(task.deadline!.second == 0) ? ' $deadlineTime' : ''}'}'),
                   trailing: Checkbox(
                     value: task.check,
                     onChanged: (bool? value) {
