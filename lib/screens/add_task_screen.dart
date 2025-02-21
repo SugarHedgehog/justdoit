@@ -12,8 +12,21 @@ class AddTaskScreen extends StatefulWidget {
 class _AddTaskScreenState extends State<AddTaskScreen> {
   String text = '';
   String description = '';
-  DateTime selectedDate = DateTime(0);
+  DateTime selectedDate = DateTime.now();
   bool taskIsSave = false;
+
+  Future<DateTime?> pickDate() => showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(DateTime.now().year - 100),
+      lastDate: DateTime(DateTime.now().year + 100)
+  );
+
+  /// Opens time picker and returns possible `TimeOfDay` object.
+  Future<TimeOfDay?> pickTime() => showTimePicker(
+      context: context,
+      initialTime:
+          TimeOfDay(hour: selectedDate.hour, minute: selectedDate.minute));
 
   bool saveTask(String text, String description, DateTime selectedDate) {
     if (text == '') {
@@ -22,7 +35,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       Task newTask = Task(
           textOfTask: text,
           descriptionOfTask: description,
-          deadline: selectedDate);
+          deadline: DateTime(selectedDate.year, selectedDate.month,
+              selectedDate.day, selectedDate.hour, selectedDate.minute));
       addTask(newTask);
       return true;
     }
@@ -36,18 +50,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: const Text('Добавить дело для делания'),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          Navigator.pop(context, false); // Возврат на предыдущий экран
-        },
+        title: const Text('Добавить дело для делания'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context, false); // Возврат на предыдущий экран
+          },
+        ),
       ),
-    ),
       body: Container(
         padding: const EdgeInsets.all(10),
         child: Column(
-          spacing: 20,
+          spacing: 10,
           children: [
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
@@ -69,7 +83,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
               ),
             ),
-            SizedBox(
+            /* SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
               child: const TextField(
                 decoration: InputDecoration(
@@ -77,6 +91,35 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   labelText: 'Дата',
                 ),
               ),
+            ), */
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 5.0,
+              children: [
+                IconButton(
+                    onPressed: () async {
+                        final newDate = await pickDate();
+                        if (newDate == null) return; // person pressed 'CANCEL'
+
+                        // Update datetime object that's shown with new date
+                        final newDateTime = DateTime(newDate.year, newDate.month, newDate.day, selectedDate.hour, selectedDate.minute);
+                        setState(
+                          () => selectedDate = newDateTime,
+                        );
+                      },
+                    icon: const Icon(Icons.calendar_month)),
+                IconButton(
+                    onPressed: () async {
+                        final newTime = await pickTime();
+                        if (newTime == null) return; // person pressed 'CANCEL'
+
+                        // Update datetime object that's shown with new time
+                        final newDateTime = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, newTime.hour, newTime.minute);
+                        setState(
+                          () => selectedDate = newDateTime,
+                        );
+                      }, icon: const Icon(Icons.schedule)),
+              ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
