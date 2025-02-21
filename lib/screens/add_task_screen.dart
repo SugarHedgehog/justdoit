@@ -14,6 +14,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   String description = '';
   DateTime selectedDate = DateTime.now();
   bool taskIsSave = false;
+  bool dateIsSet = false;
+  bool timeIsSet = false;
 
   Future<DateTime?> pickDate() => showDatePicker(
       locale: const Locale("ru", "RU"),
@@ -36,8 +38,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       Task newTask = Task(
           textOfTask: text,
           descriptionOfTask: description,
-          deadline: DateTime(selectedDate.year, selectedDate.month,
-              selectedDate.day, selectedDate.hour, selectedDate.minute));
+          deadline: dateIsSet
+              ? DateTime(selectedDate.year, selectedDate.month,
+                  selectedDate.day, selectedDate.hour, selectedDate.minute)
+              : DateTime(0));
       addTask(newTask);
       return true;
     }
@@ -92,14 +96,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 children: [
                   IconButton(
                       onPressed: () async {
-                          final newDate = await pickDate();
-                          if (newDate == null) return; 
-              
-                          final newDateTime = DateTime(newDate.year, newDate.month, newDate.day, selectedDate.hour, selectedDate.minute);
-                          setState(
-                            () => selectedDate = newDateTime,
-                          );
-                        },
+                        final newDate = await pickDate();
+                        if (newDate == null) {
+                          return;
+                        } else {
+                          setState(() {
+                            dateIsSet = true;
+                          });
+                        }},
                       tooltip: "Добавить дату дедлайна",
                       icon: const Icon(Icons.calendar_month)),
                   IconButton(
