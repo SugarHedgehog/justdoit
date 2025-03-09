@@ -65,6 +65,7 @@ class _ListOfTaskScreen extends State<ListOfTaskScreen> {
       Colors.yellow[50]!,  
       Colors.orange[50]!,  
       Colors.red[50]!, 
+      Colors.red[400]!, 
     ];
     
     return Center(
@@ -98,6 +99,10 @@ class _ListOfTaskScreen extends State<ListOfTaskScreen> {
                 Color itemColor = Colors.grey[50]!; // Цвет по умолчанию
                 if (task.rating >= 1 && task.rating <= 5) {
                   itemColor = ratingColors[task.rating.toInt() - 1]; // -1 потому что индексы с 0, а рейтинг с 1
+                }
+
+                if((task.deadline!.year != 0 || task.deadline!.second != 0) && DateTime.now().compareTo(task.deadline!) == 1){
+                  itemColor = ratingColors[ratingColors.length - 1];
                 }
                 
                 return Container(
