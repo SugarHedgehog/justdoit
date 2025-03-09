@@ -59,6 +59,14 @@ class _ListOfTaskScreen extends State<ListOfTaskScreen> {
   }
 
   Widget listViewCustom(List<Task> taskList, context) {
+    final List<Color> ratingColors = [
+      Colors.blue[50]!,    
+      Colors.green[50]!,   
+      Colors.yellow[50]!,  
+      Colors.orange[50]!,  
+      Colors.red[50]!, 
+    ];
+    
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -85,25 +93,36 @@ class _ListOfTaskScreen extends State<ListOfTaskScreen> {
                 final task = taskList[index];
                 String deadlineDate = formatDeadlineDate(task.deadline!);
                 String deadlineTime = formatDeadlineTime(task.deadline!);
-                return ListTile(
-                  title: Text(task.textOfTask),
-                  subtitle: Text(
-                      '${task.descriptionOfTask ?? ''} ${task.deadline!.year == 0 ? '' : 'Сделать до $deadlineDate${(task.deadline!.second == 0) ? ' $deadlineTime' : ''}'}'),
-                  trailing: Checkbox(
-                    value: task.check,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        if (task.check == false) {
-                          taskListCheck.add(task);
-                          taskListUncheck.removeAt(index);
-                          task.check = true;
-                        } else {
-                          taskListUncheck.insert(0, task);
-                          taskListCheck.removeAt(index);
-                          task.check = false;
-                        }
-                      });
-                    },
+                
+                // Получаем цвет из массива по рейтингу (с проверкой на валидный индекс)
+                Color itemColor = Colors.grey[50]!; // Цвет по умолчанию
+                if (task.rating >= 1 && task.rating <= 5) {
+                  itemColor = ratingColors[task.rating.toInt() - 1]; // -1 потому что индексы с 0, а рейтинг с 1
+                }
+                
+                return Container(
+                  color: itemColor,
+                  margin: const EdgeInsets.symmetric(vertical: 2),
+                  child: ListTile(
+                    title: Text(task.textOfTask),
+                    subtitle: Text(
+                        '${task.descriptionOfTask ?? ''} ${task.deadline!.year == 0 ? '' : 'Сделать до $deadlineDate${(task.deadline!.second == 0) ? ' $deadlineTime' : ''}'}'),
+                    trailing: Checkbox(
+                      value: task.check,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          if (task.check == false) {
+                            taskListCheck.add(task);
+                            taskListUncheck.removeAt(index);
+                            task.check = true;
+                          } else {
+                            taskListUncheck.insert(0, task);
+                            taskListCheck.removeAt(index);
+                            task.check = false;
+                          }
+                        });
+                      },
+                    ),
                   ),
                 );
               },

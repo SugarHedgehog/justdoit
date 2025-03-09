@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:justdoit/resourse/data.dart';
 import 'package:justdoit/task.dart';
+import 'package:flutter_rating/flutter_rating.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key});
@@ -16,6 +17,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   bool taskIsSave = false;
   bool dateIsSet = false;
   bool timeIsSet = false;
+  double rating = 1;
 
   Future<DateTime?> pickDate() => showDatePicker(
       locale: const Locale("ru", "RU"),
@@ -89,14 +91,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     return DateTime(0);
   }
 
-  bool saveTask(String text, String description, DateTime selectedDate) {
+  bool saveTask(String text, String description, DateTime selectedDate, double rating) {
     if (text == '') {
       return false;
     } else {
       Task newTask = Task(
           textOfTask: text,
           descriptionOfTask: description,
-          deadline: setdeadline());
+          deadline: setdeadline(),
+          rating: rating);
       addTask(newTask);
       return true;
     }
@@ -121,6 +124,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       body: Container(
         padding: const EdgeInsets.all(10),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           spacing: 10,
           children: [
             SizedBox(
@@ -143,24 +147,39 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                spacing: 5.0,
-                children: [
-                  IconButton(
-                      onPressed: pickDateTime,
-                      tooltip: "Добавить дату и время",
-                      icon: const Icon(Icons.calendar_month)),
-                  if (dateIsSet)
-                    Text(
-                      'Дата: ${selectedDate.day}.${selectedDate.month}.${selectedDate.year}'
-                      '${timeIsSet ? ' Время: ${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}' : ''}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              spacing: 5,
+              children: [
+                const Text("Важность:"),
+                StarRating(
+                  size: 30.0,
+                  rating: rating,
+                  filledIcon: Icons.av_timer,
+                  halfFilledIcon: Icons.av_timer,
+                  emptyIcon: Icons.av_timer,
+                  color: Colors.deepPurpleAccent, // Color for filled and half-filled icons
+                  borderColor: Colors.grey, // Color for empty icons
+                  onRatingChanged: (rat) => setState(() => rating = rat),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                IconButton(
+                    onPressed: pickDateTime,
+                    tooltip: "Добавить дату и время",
+                    icon: const Icon(Icons.calendar_month)),
+                if (dateIsSet)
+                  Text(
+                    'Дата: ${selectedDate.day}.${selectedDate.month}.${selectedDate.year}'
+                    '${timeIsSet ? ' Время: ${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}' : ''}',
+                    style: const TextStyle(fontSize: 12),
+                  )
+                else
+                  const Text('Дедлайн не отмечен'),
+              ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -168,7 +187,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ElevatedButton(
                     onPressed: () => {
                           taskIsSave =
-                              saveTask(text, description, selectedDate),
+                              saveTask(text, description, selectedDate, rating),
                           if (taskIsSave)
                             {Navigator.pop(context, taskIsSave)}
                           else
