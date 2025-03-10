@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:justdoit/resourse/data.dart';
-import 'package:justdoit/task.dart';
+import 'package:justdoit/services/edit_task.dart';
 import 'package:flutter_rating/flutter_rating.dart';
 
 class AddTaskScreen extends StatefulWidget {
@@ -73,40 +72,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         });
       }
     }
-  }
-
-  DateTime setdeadline() {
-    if (dateIsSet && timeIsSet) {
-      return DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
-          selectedDate.hour, selectedDate.minute);
-    }
-    if (dateIsSet && !timeIsSet) {
-      return DateTime(
-          selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 10);
-    }
-    if (!dateIsSet && !timeIsSet) {
-      return DateTime(0);
-    }
-
-    return DateTime(0);
-  }
-
-  bool saveTask(String text, String description, DateTime selectedDate, double rating) {
-    if (text == '') {
-      return false;
-    } else {
-      Task newTask = Task(
-          textOfTask: text,
-          descriptionOfTask: description,
-          deadline: setdeadline(),
-          rating: rating);
-      addTask(newTask);
-      return true;
-    }
-  }
-
-  Future<void> addTask(Task newTask) async {
-    taskListUncheck.insert(0, newTask);
   }
 
   @override
@@ -187,7 +152,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ElevatedButton(
                     onPressed: () => {
                           taskIsSave =
-                              saveTask(text, description, selectedDate, rating),
+                              saveTask(text, description, selectedDate, rating, dateIsSet, timeIsSet),
                           if (taskIsSave)
                             {Navigator.pop(context, taskIsSave)}
                           else

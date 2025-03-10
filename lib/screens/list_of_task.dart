@@ -92,10 +92,8 @@ class _ListOfTaskScreen extends State<ListOfTaskScreen> {
               itemCount: taskList.length,
               itemBuilder: (context, index) {
                 final task = taskList[index];
-                String deadlineDate = formatDeadlineDate(task.deadline!);
-                String deadlineTime = formatDeadlineTime(task.deadline!);
-                bool dateIsSet = task.deadline!.year == 0;
-                bool timeIsSet = task.deadline!.second != 0;
+                String deadlineDate = formatDeadlineDate(task.deadline);
+                String deadlineTime = formatDeadlineTime(task.deadline);
                 
                 // Получаем цвет из массива по рейтингу (с проверкой на валидный индекс)
                 Color itemColor = Colors.grey[50]!; // Цвет по умолчанию
@@ -103,7 +101,7 @@ class _ListOfTaskScreen extends State<ListOfTaskScreen> {
                   itemColor = ratingColors[task.rating.toInt() - 1]; // -1 потому что индексы с 0, а рейтинг с 1
                 }
 
-                if(!task.check && (!dateIsSet || timeIsSet) && DateTime.now().compareTo(task.deadline!) == 1){
+                if(!task.check && task.dateIsSet && DateTime.now().compareTo(task.deadline) == 1){
                   itemColor = ratingColors[ratingColors.length - 1];
                 }
                 
@@ -113,7 +111,7 @@ class _ListOfTaskScreen extends State<ListOfTaskScreen> {
                   child: ListTile(
                     title: Text(task.textOfTask),
                     subtitle: Text(
-                        '${task.descriptionOfTask ?? ''} ${dateIsSet ? '' : 'Сделать до $deadlineDate${timeIsSet ? ' $deadlineTime' : ''}'}'),
+                        '${task.descriptionOfTask ?? ''} ${task.dateIsSet ? 'Сделать до $deadlineDate${task.timeIsSet ? ' $deadlineTime' : ''}' : '' }'),
                     trailing: Checkbox(
                       value: task.check,
                       onChanged: (bool? value) {
